@@ -1,0 +1,53 @@
+# 🐍 Python / Django
+backend/__pycache__/
+backend/**/*.py[cod]
+backend/*.sqlite3
+backend/db.sqlite3
+backend/.env
+backend/.venv/
+backend/media/
+backend/staticfiles/
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/.coverage
+backend/*.log
+
+# 📦 Python Dependency Lock
+backend/poetry.lock
+backend/Pipfile.lock
+backend/requirements.txt.lock
+
+# 🌐 Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.angular/cache/
+frontend/.angular/config.json
+
+# 💼 VS Code
+.vscode/
+*.code-workspace
+
+# 🐳 Docker
+**/__pycache__/
+*.tar
+*.pid
+.env
+.env.*
+docker-compose.override.yml
+
+# 📁 OS-generated
+.DS_Store
+Thumbs.db
+
+# 🔍 Logs
+*.log
+*.log.*
+
+# 🔄 Git Merge Files
+*.orig
+*.rej
+
+# 🚧 Coverage/Test Reports
+htmlcov/
+coverage.xml
