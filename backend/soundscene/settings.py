@@ -64,6 +64,27 @@ GRAPHENE = {
     # Optional: 'MIDDLEWARE': ['graphql_api.middlewares.CustomAuthMiddleware'],
 }
 
+# CORS settings
+# Uncomment if using django-cors-headers for CORS support
+# INSTALLED_APPS = [
+#     ...
+#     "corsheaders",
+# ]
+
+# MIDDLEWARE = [
+#     "corsheaders.middleware.CorsMiddleware",
+#     ...
+# ]
+
+# # Allow frontend to connect (Angular default: http://localhost:4200)
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:4200",
+# ]
+
+# If using cookies instead of Authorization header:
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = ["http://localhost:4200"]
+
 ROOT_URLCONF = "soundscene.urls"
 
 TEMPLATES = [

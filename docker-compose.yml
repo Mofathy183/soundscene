@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ./backend         # 👈 Build from backend folder only
+      dockerfile: Dockerfile     # Optional if the file is named Dockerfile
+    container_name: soundscene-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app           # Mount backend code for live development
+      - /app/.venv
+    env_file:
+      - ./backend/.env
+      - ./backend/.env.db
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: soundscene-db
+    volumes:
+      - pgdata:/var/lib/postgresql/data/
+    env_file:
+      - ./backend/.env.db
+    ports:
+      - "5432:5432"
+
+volumes:
+  pgdata:
