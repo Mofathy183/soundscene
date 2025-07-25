@@ -18,12 +18,25 @@ classifiers = [
 # Main app dependencies (runtime)
 dependencies = [
     "django>=5.2.4",
+    "django-cors-headers>=4.7.0",
     "django-environ>=0.12.0",
-    "psycopg2-binary>=2.9.10"
+    "django-filter>=25.1",
+    "django-graphene-auth>=1.1.1",
+    "django-graphql-jwt>=0.4.0",
+    "djangorestframework>=3.16.0",
+    "graphene-django>=3.2.3",
+    "pillow>=11.3.0",
+    "psycopg2-binary>=2.9.10",
 ]
 
 # Dev-only tools (linting, testing, etc.)
 [dependency-groups]
 dev = [
+    "django-stubs>=5.2.2",
+    "factory-boy>=3.3.3",
+    "mypy>=1.17.0",
+    "pytest>=8.4.1",
+    "pytest-factoryboy>=2.8.1",
+    "pytest-mock>=3.14.1",
     "ruff>=0.12.5",
 ]
