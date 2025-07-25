@@ -1,0 +1,50 @@
+# 🐍 Python / Django
+backend/**/*.py[cod]
+backend/.env
+backend/.venv/
+backend/db.sqlite3*
+backend/staticfiles/
+backend/media/
+backend/.mypy_cache/
+backend/.pytest_cache/
+backend/.coverage
+backend/*.log*
+
+# 📦 Python Dependency Lock
+backend/poetry.lock
+backend/Pipfile.lock
+backend/requirements.txt.lock
+
+# 🌐 Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/.angular/cache/
+frontend/.angular/config.json
+frontend/tmp/
+frontend/out-tsc/
+
+# 🧠 IDEs
+.idea/
+.vscode/
+.project
+.classpath
+.c9/
+*.sublime-workspace
+*.launch
+.settings/
+
+# 💻 Logs
+npm-debug.log
+yarn-error.log
+libpeerconnection.log
+testem.log
+
+# 🧪 Coverage
+coverage/
+htmlcov/
+coverage.xml
+
+# 🖼️ OS Files
+.DS_Store
+Thumbs.db
