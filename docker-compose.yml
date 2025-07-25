@@ -1,0 +1,31 @@
+version: "3.9"  # Docker Compose file format version
+
+services:
+  backend:
+    build:
+      context: ./backend         #* Build context is the backend folder
+      dockerfile: Dockerfile     #* Dockerfile name (optional if named 'Dockerfile')
+    container_name: soundscene-backend  # Name of the container for backend
+    ports:
+      - "8000:8000"              # Map host port 8000 to container port 8000
+    volumes:
+      - ./backend:/app           #* Mount backend code for hot-reloading / live development
+      - /app/.venv               #* Avoid overwriting the virtual environment directory in container
+    env_file:
+      - ./backend/.env           #* General app-level environment variables (e.g., DJANGO_ENV, SECRET_KEY)
+      - ./backend/.env.db.docker #* Docker-specific DB config (host=db, etc.)
+    depends_on:
+      - db                       #* Ensure DB service starts before backend
+
+  db:
+    image: postgres:17           # Use official PostgreSQL 17 image
+    container_name: soundscene-db  # Name the DB container
+    volumes:
+      - pgdata:/var/lib/postgresql/data/  # Persist PostgreSQL data using a Docker volume
+    env_file:
+      - ./backend/.env.db.docker #* Pass DB credentials/environment from file
+    ports:
+      - "5432:5432"              # Expose Postgres on host for tools like pgAdmin or local CLI
+
+volumes:
+  pgdata:                        # Declare named volume for persistent DB storage

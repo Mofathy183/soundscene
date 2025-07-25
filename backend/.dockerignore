@@ -1,0 +1,68 @@
+# ───── Python bytecode ─────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ───── Environment files (DO NOT COPY INTO IMAGE!) ─────
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# ───── Editor / IDE configs ─────
+.vscode/
+.idea/
+.idea/.name
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/dictionaries
+.idea/httpRequests/
+*.sublime-project
+*.sublime-workspace
+
+# ───── OS / user files ─────
+.DS_Store
+Thumbs.db
+
+# ───── Database and runtime files ─────
+*.sqlite3
+*.db
+*.log
+*.pid
+
+# ───── Unit test and coverage ─────
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.pytest_cache/
+.nox/
+.cache/
+tests/__pycache__/
+
+# ───── Build artifacts ─────
+build/
+dist/
+*.egg-info/
+.eggs/
+*.whl
+
+# ───── Docker related ─────
+docker-compose.override.yml
+Dockerfile.*
+.dockerignore
+
+
+# ───── Virtualenv (if local venv used) ─────
+venv/
+.venv/
+env/
+ENV/
+
+# ───── Misc ─────
+*.bak
+*.swp
+*.tmp
+*.old
+*.orig

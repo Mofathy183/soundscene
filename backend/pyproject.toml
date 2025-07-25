@@ -1,9 +1,29 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Backend API for SoundScene built with Django and GraphQL"
 readme = "README.md"
 requires-python = ">=3.13.5"
+license = { text = "MIT" }
+authors = [
+    { name = "Mohamed Fathy" }  # Add email if publishing: { name = "Mohamed Fathy", email = "you@example.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Framework :: Django",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+# Main app dependencies (runtime)
 dependencies = [
     "django>=5.2.4",
+    "django-environ>=0.12.0",
+    "psycopg2-binary>=2.9.10"
+]
+
+# Dev-only tools (linting, testing, etc.)
+[dependency-groups]
+dev = [
+    "ruff>=0.12.5",
 ]
