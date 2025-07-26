@@ -37,6 +37,7 @@ dev = [
     { name = "pytest-factoryboy" },
     { name = "pytest-mock" },
     { name = "ruff" },
+    { name = "typing-extensions" },
 ]
 
 [package.metadata]
@@ -62,6 +63,7 @@ dev = [
     { name = "pytest-factoryboy", specifier = ">=2.8.1" },
     { name = "pytest-mock", specifier = ">=3.14.1" },
     { name = "ruff", specifier = ">=0.12.5" },
+    { name = "typing-extensions", specifier = ">=4.14.1" },
 ]
 
 [[package]]

@@ -13,52 +13,105 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import environ
 import os
+from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# ───── Define base directory ─────
+# BASE_DIR points to the root of the project and is used to construct file paths (e.g., for media, static, env).
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# ───── Load environment variables ─────
+# Initialize environment handling using django-environ
 env = environ.Env()
 
-# Always load base .env
+# Always load the main .env file (regardless of environment)
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+# ───── Django settings ─────
+# These are development-only settings; do NOT use as-is in production.
+# See: https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
+# Load the Django secret key from the environment for security.
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# Set DEBUG mode based on environment; should be False in production.
 DEBUG = env("DEBUG", default=False)
 
-# Hosts/domain names that are valid for this site; required if DEBUG is False
+# Set allowed hosts; required if DEBUG is False. Read from env or fallback to localhost.
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
-
-# Application definition
-
+# ─────────────── Installed Apps ───────────────
 INSTALLED_APPS = [
+    # Django built-in apps
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
-    # Apps
-    "users.apps.UsersConfig",
+    # Third-party apps
+    "corsheaders",  # Handle CORS
+    "django_filters",  # Filtering support for DRF and Graphene
+    "graphene_django",  # GraphQL integration
+    "rest_framework",  # Django REST Framework
+    # Local apps
+    "users.apps.UsersConfig",  # Custom users app (with AbstractBaseUser)
 ]
 
+# ─────────────── Middleware ───────────────
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # Placed before CommonMiddleware
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+# ─────────────── Graphene and JWT Configuration ───────────────
+GRAPHENE = {
+    "SCHEMA": "gql.schema.schema",  # Root GraphQL schema path
+    "MIDDLEWARE": [
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+    ],
+}
+
+AUTHENTICATION_BACKENDS = [
+    "graphql_jwt.backends.JSONWebTokenBackend",  # Enables JWT auth
+    "django.contrib.auth.backends.ModelBackend",  # Required for admin login, etc.
+]
+
+# ─────────────── GraphQL JWT Settings ───────────────
+GRAPHQL_JWT = {
+    "JWT_VERIFY_EXPIRATION": True,
+    "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
+    # Allow unauthenticated access for login mutation
+    "JWT_ALLOW_ANY_CLASSES": [
+        "graphql_jwt.views.ObtainJSONWebToken",
+    ],
+    # Token lifetime
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=5),  # Access token expiration
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),  # Refresh token expiration
+    # Use cookies instead of headers
+    "JWT_COOKIE_NAME": "access_token",
+    "JWT_REFRESH_TOKEN_COOKIE_NAME": "refresh_token",
+    "JWT_COOKIE_SECURE": False,  # Change to True in production (HTTPS only)
+    "JWT_COOKIE_HTTPONLY": True,  # Prevent JavaScript access to cookies
+    "JWT_COOKIE_SAMESITE": "Strict",  # or "Lax" for less strict CSRF protection
+}
+
+# ─────────────── CORS + CSRF ───────────────
+# Allow frontend to connect (adjust depending on your frontend host)
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",
+]
+
+# Allow sending credentials (cookies) with CORS requests
+CORS_ALLOW_CREDENTIALS = True
+
+# Allow CSRF from frontend
+CSRF_TRUSTED_ORIGINS = ["http://localhost:4200"]
 
 ROOT_URLCONF = "soundscene.urls"
 
@@ -79,32 +132,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "soundscene.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# ─────────────── Database Configuration ───────────────
+# Django DB settings using environment variables for flexibility across local and Docker environments.
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-# Detect the environment: docker or local
+# Determine the active environment: 'local' or 'docker'
 DJANGO_ENV = env("DJANGO_ENV", default="local")
 
-# Load additional DB-specific .env
+# Load environment-specific DB variables from a secondary .env file
 if DJANGO_ENV == "docker":
     env.read_env(os.path.join(BASE_DIR, ".env.db.docker"))
 else:
     env.read_env(os.path.join(BASE_DIR, ".env.db.local"))
 
+# Define the default PostgreSQL database configuration
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": env("POSTGRES_DB"),
-        "USER": env("POSTGRES_USER"),
-        "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("POSTGRES_HOST"),
-        "PORT": env("POSTGRES_PORT", default="5432"),
+        "NAME": env("POSTGRES_DB"),  # Database name
+        "USER": env("POSTGRES_USER"),  # DB user
+        "PASSWORD": env("POSTGRES_PASSWORD"),  # DB password
+        "HOST": env("POSTGRES_HOST"),  # Host (Docker service or localhost)
+        "PORT": env("POSTGRES_PORT", default="5432"),  # Default PostgreSQL port
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -142,7 +194,19 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+# ─────────────── Media Files (User Uploads) ───────────────
+# MEDIA_URL: The public URL path used to access uploaded media files.
+# MEDIA_ROOT: The filesystem path where uploaded files (e.g. avatars) are stored.
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# ─────────────── Custom User Model ───────────────
+# Use a custom user model that extends AbstractBaseUser and PermissionsMixin.
+# This allows for full control over user authentication, fields, and permissions.
+# AUTH_USER_MODEL = "users.User"

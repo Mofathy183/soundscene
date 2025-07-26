@@ -3,12 +3,14 @@
 
 import os
 import sys
+
+# Add this to silence mypy warning
 import environ
 
 env = environ.Env()
 
 
-def main():
+def main() -> None:
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "soundscene.settings")
     try:
