@@ -20,12 +20,18 @@ from typing import List
 from django.urls import path, URLPattern, URLResolver
 from django.conf.urls.static import static
 from django.conf import settings
+from django.views.decorators.csrf import ensure_csrf_cookie
+from graphql_jwt.decorators import jwt_cookie
 from graphene_django.views import GraphQLView
 
 
 urlpatterns: List[URLPattern | URLResolver] = [
     path("admin/", admin.site.urls),
-    path("graphql/", GraphQLView.as_view(graphiql=True)),
+    # Wrap GraphQL view with jwt_cookie to enable secure cookie auth
+    path(
+        "graphql/",
+        ensure_csrf_cookie(jwt_cookie(GraphQLView.as_view(graphiql=True))),
+    ),
 ]
 
 if settings.DEBUG:

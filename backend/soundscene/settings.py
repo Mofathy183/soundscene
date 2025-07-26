@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     "corsheaders",  # Handle CORS
     "django_filters",  # Filtering support for DRF and Graphene
     "graphene_django",  # GraphQL integration
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",  # Enables refresh token mutation
     "rest_framework",  # Django REST Framework
     # Local apps
     "users.apps.UsersConfig",  # Custom users app (with AbstractBaseUser)
@@ -69,39 +70,44 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# ─────────────── Graphene and JWT Configuration ───────────────
+# ─────────────── Graphene Configuration ───────────────
 GRAPHENE = {
-    "SCHEMA": "gql.schema.schema",  # Root GraphQL schema path
+    "SCHEMA": "gql.schema.schema",  # Main GraphQL schema path
     "MIDDLEWARE": [
-        "graphql_jwt.middleware.JSONWebTokenMiddleware",
+        "graphql_jwt.middleware.JSONWebTokenMiddleware",  # Enables JWT auth
     ],
 }
 
+# ─────────────── Authentication Backends ───────────────
 AUTHENTICATION_BACKENDS = [
-    "graphql_jwt.backends.JSONWebTokenBackend",  # Enables JWT auth
-    "django.contrib.auth.backends.ModelBackend",  # Required for admin login, etc.
+    "graphql_jwt.backends.JSONWebTokenBackend",  # Checks JWT token in request
+    "django.contrib.auth.backends.ModelBackend",  # Needed for admin and password login
 ]
 
-# ─────────────── GraphQL JWT Settings ───────────────
+# ─────────────── GraphQL JWT Configuration ───────────────
 GRAPHQL_JWT = {
+    # Enforce expiration checks
     "JWT_VERIFY_EXPIRATION": True,
+    # Enable refresh token support
     "JWT_LONG_RUNNING_REFRESH_TOKEN": True,
-    # Allow unauthenticated access for login mutation
-    "JWT_ALLOW_ANY_CLASSES": [
+    # Token durations
+    "JWT_EXPIRATION_DELTA": timedelta(minutes=5),
+    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),
+    # Token handling via secure cookies
+    "JWT_COOKIE_NAME": "access_token",  # Automatically sent by browser
+    "JWT_REFRESH_TOKEN_COOKIE_NAME": "refresh_token",  # Used by refreshToken mutation
+    "JWT_COOKIE_HTTPONLY": True,  # Prevents JS access
+    "JWT_COOKIE_SECURE": False,  # Set to True in production with HTTPS
+    "JWT_COOKIE_SAMESITE": "Strict",  # Helps prevent CSRF attacks
+    # CSRF protection enhancement
+    "JWT_ALLOW_ANY_CLASSES": [  # Public mutations that don't require auth
         "graphql_jwt.views.ObtainJSONWebToken",
     ],
-    # Token lifetime
-    "JWT_EXPIRATION_DELTA": timedelta(minutes=5),  # Access token expiration
-    "JWT_REFRESH_EXPIRATION_DELTA": timedelta(days=7),  # Refresh token expiration
-    # Use cookies instead of headers
-    "JWT_COOKIE_NAME": "access_token",
-    "JWT_REFRESH_TOKEN_COOKIE_NAME": "refresh_token",
-    "JWT_COOKIE_SECURE": False,  # Change to True in production (HTTPS only)
-    "JWT_COOKIE_HTTPONLY": True,  # Prevent JavaScript access to cookies
-    "JWT_COOKIE_SAMESITE": "Strict",  # or "Lax" for less strict CSRF protection
+    # Secret key for encoding JWTs
+    "JWT_SECRET_KEY": env("DJANGO_SECRET_KEY"),
 }
 
-# ─────────────── CORS + CSRF ───────────────
+# ─────────────── CORS Configuration ───────────────
 # Allow frontend to connect (adjust depending on your frontend host)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
@@ -112,6 +118,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Allow CSRF from frontend
 CSRF_TRUSTED_ORIGINS = ["http://localhost:4200"]
+
+# ─────────────── CSRF Token Settings ───────────────
+CSRF_COOKIE_NAME = "csrftoken"  # Default Django name
+CSRF_COOKIE_HTTPONLY = False  # JS must read this to send in headers
+CSRF_COOKIE_SECURE = False  # True in production
+CSRF_COOKIE_SAMESITE = "Lax"  # Safer setting that allows POST from same-site
 
 ROOT_URLCONF = "soundscene.urls"
 
