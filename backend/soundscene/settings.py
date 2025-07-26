@@ -209,4 +209,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ─────────────── Custom User Model ───────────────
 # Use a custom user model that extends AbstractBaseUser and PermissionsMixin.
 # This allows for full control over user authentication, fields, and permissions.
-# AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.User"

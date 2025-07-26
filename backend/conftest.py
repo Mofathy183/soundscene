@@ -8,7 +8,7 @@ conftest.py for setting up common test configurations and fixtures.
 import tempfile
 import shutil
 import pytest
-from django.conf import settings
+from django.conf import settings  # noqa: F401
 from typing import Any, Generator
 
 # Register factories for pytest-factoryboy
@@ -23,25 +23,25 @@ pytest_plugins = ["pytest_factoryboy"]
 
 
 @pytest.fixture(autouse=True)
-def set_fast_password_hasher(settings: Any) -> None:
+def set_fast_password_hasher(django_settings: Any) -> None:
     """
     Fixture to speed up password hashing during tests.
     Uses MD5 hasher (insecure, but fast), since security is not needed in tests.
     Applied automatically to all tests.
     """
-    settings.PASSWORD_HASHERS = [
+    django_settings.PASSWORD_HASHERS = [
         "django.contrib.auth.hashers.MD5PasswordHasher",
     ]
 
 
 @pytest.fixture(autouse=True, scope="function")
-def temp_media_root(settings: Any) -> Generator[None, None, None]:
+def temp_media_root(django_settings: Any) -> Generator[None, None, None]:
     """
     Fixture to override Django's MEDIA_ROOT to a temporary directory.
     Ensures all uploaded media (e.g. avatars, files) are saved in a temp folder
     and cleaned up after each test.
     """
     temp_dir = tempfile.mkdtemp()
-    settings.MEDIA_ROOT = temp_dir
+    django_settings.MEDIA_ROOT = temp_dir
     yield
     shutil.rmtree(temp_dir)
