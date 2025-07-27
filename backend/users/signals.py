@@ -1,10 +1,12 @@
-from django.db.models.signals import post_save, pre_save, post_delete
-from django.dispatch import receiver
-from .models import User, Profile
-from django.core.exceptions import ObjectDoesNotExist
 import os
 from typing import Any
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Model
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.dispatch import receiver
+
+from .models import Profile, User
 
 
 @receiver(post_save, sender=User)
@@ -20,6 +22,7 @@ def create_user_profile(
         instance (User): The instance of the User that was saved.
         created (bool): A boolean indicating if the instance was created.
         **kwargs (Any): Additional keyword arguments passed by the signal dispatcher.
+
     """
     if created:
         # Automatically create a one-to-one Profile for the new User
@@ -36,6 +39,7 @@ def delete_old_avatar(sender: type[Profile], instance: Profile, **kwargs: Any) -
         sender (type[Model]): The model class that triggered the signal (Profile).
         instance (Profile): The instance of Profile being saved.
         **kwargs (Any): Additional keyword arguments provided by the signal dispatcher.
+
     """
     # Skip if the instance is new (has no ID yet)
     if not instance.id:
@@ -70,6 +74,7 @@ def delete_avatar_on_delete(
         sender (type[Model]): The model class that sent the signal (Profile).
         instance (Profile): The instance of Profile that was deleted.
         **kwargs (Any): Additional keyword arguments passed by the signal dispatcher.
+
     """
     avatar = instance.avatar
 

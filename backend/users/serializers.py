@@ -1,17 +1,19 @@
-from rest_framework import serializers
-from .models import User, Profile
+from typing import Any, Dict, Optional, Union
+
 from django.core.files.uploadedfile import UploadedFile
-from typing import Any, Optional, Union, Dict
+from rest_framework import serializers
+
+from .models import Profile, User
 from .validators import (
-    validate_email,
-    validate_username,
-    validate_name,
-    validate_password,
+    validate_age_range,
     validate_bio,
     validate_birthday,
-    validate_age_range,
-    validate_image_size,
+    validate_email,
     validate_image_extension,
+    validate_image_size,
+    validate_name,
+    validate_password,
+    validate_username,
 )
 
 
@@ -145,6 +147,7 @@ class ProfileSerializer(serializers.ModelSerializer):  # type: ignore
 
         Returns:
             UploadedFile | None: The validated avatar file if valid.
+
         """
         if avatar is not None:
             # Validate image size and extension
@@ -165,6 +168,7 @@ class ProfileSerializer(serializers.ModelSerializer):  # type: ignore
 
         Returns:
             Optional[int]: The age of the user, or None if not available.
+
         """
         # Return the age attribute if it exists; otherwise return None
         return getattr(obj, "age", None)

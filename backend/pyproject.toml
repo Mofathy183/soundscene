@@ -35,6 +35,7 @@ dev = [
     "factory-boy>=3.3.3",
     "mypy>=1.17.0",
     "pytest>=8.4.1",
+    "pytest-django>=4.11.1",
     "pytest-factoryboy>=2.8.1",
     "pytest-mock>=3.14.1",
     "ruff>=0.12.5",

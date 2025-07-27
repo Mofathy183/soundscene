@@ -1,9 +1,9 @@
 from __future__ import annotations  # Postpone evaluation of annotations
 
+from typing import TYPE_CHECKING, Any, Optional
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils.translation import gettext_lazy as _
-from typing import TYPE_CHECKING, Optional, Any
-
 
 if TYPE_CHECKING:
     from .models import (
@@ -24,7 +24,7 @@ class UserManager(BaseUserManager["User"]):
         name: str,
         password: Optional[str] = None,
         **extra_fields: Any,
-    ) -> "User":
+    ) -> User:
         """
         Create and return a regular user with the given email, username, name, and password.
 
@@ -40,6 +40,7 @@ class UserManager(BaseUserManager["User"]):
 
         Raises:
             ValueError: If email is not provided.
+
         """
         if not email:
             raise ValueError(_("The Email field must be set."))
@@ -57,7 +58,7 @@ class UserManager(BaseUserManager["User"]):
 
     def create_superuser(
         self, email: str, username: str, name: str, password: str, **extra_fields: Any
-    ) -> "User":
+    ) -> User:
         """
         Create and return a superuser with admin privileges.
 
@@ -73,6 +74,7 @@ class UserManager(BaseUserManager["User"]):
 
         Raises:
             ValueError: If required superuser flags are not set.
+
         """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
@@ -85,7 +87,7 @@ class UserManager(BaseUserManager["User"]):
 
         return self.create_user(email, username, name, password, **extra_fields)
 
-    def get_by_natural_key(self, email: str | None) -> "User":
+    def get_by_natural_key(self, email: str | None) -> User:
         """
         Return a user matched by email (case-insensitive),
         allowing it to act as the natural key for authentication.
@@ -98,6 +100,7 @@ class UserManager(BaseUserManager["User"]):
 
         Raises:
             ValueError: If email is not provided.
+
         """
         if not email:
             raise ValueError(_("The Email field must be set."))

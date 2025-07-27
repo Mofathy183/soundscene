@@ -1,11 +1,13 @@
+from typing import Any, Optional
+
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.utils.html import format_html
-from django import forms
-from django.http import HttpRequest
-from typing import Optional, Any
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
-from .models import User, Profile
+from django.http import HttpRequest
+from django.utils.html import format_html
+
+from .models import Profile, User
 from .validators import validate_password
 
 
@@ -39,6 +41,7 @@ class CustomUserCreationForm(forms.ModelForm):  # type: ignore
 
         Returns:
             str: The confirmed password.
+
         """
         password: str | None = self.cleaned_data.get("password")
         confirm_password: str | None = self.cleaned_data.get("confirm_password")
@@ -53,6 +56,7 @@ class CustomUserCreationForm(forms.ModelForm):  # type: ignore
 
         Returns:
             str: The validated password.
+
         """
         password: str | None = self.cleaned_data.get("password")
         validate_password(password)
@@ -67,6 +71,7 @@ class CustomUserCreationForm(forms.ModelForm):  # type: ignore
 
         Returns:
             User: The saved user instance.
+
         """
         user: User = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
@@ -105,6 +110,7 @@ class CustomUserChangeForm(forms.ModelForm):  # type: ignore
 
         Returns:
             str: The initial password hash.
+
         """
         return self.initial["password"]
 

@@ -1,15 +1,16 @@
-from django.core.exceptions import ValidationError
-from django.core.files.uploadedfile import UploadedFile
-from typing import List, Callable, Union
-from django.core.validators import (
-    RegexValidator,
-    EmailValidator,
-    MinLengthValidator,
-    MaxLengthValidator,
-)
-from datetime import date
 import os
 import re
+from datetime import date
+from typing import Callable, List, Union
+
+from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import UploadedFile
+from django.core.validators import (
+    EmailValidator,
+    MaxLengthValidator,
+    MinLengthValidator,
+    RegexValidator,
+)
 
 # # Accept both class-based and function-based validators
 ValidatorType = Union[
@@ -101,6 +102,7 @@ def validate_password(password: str | None) -> None:
 
     Raises:
         ValidationError: If the password fails any validation checks.
+
     """
     errors: List[str] = []
 
@@ -141,6 +143,7 @@ def validate_bio(value: str) -> None:
 
     Raises:
         ValidationError: If the bio is too short (<2 chars) or too long (>250 chars).
+
     """
     if not value:
         return  # Allow blank bio (optional field)
@@ -167,6 +170,7 @@ def validate_bio_not_numeric_only(value: str) -> None:
 
     Raises:
         ValidationError: If the value contains only digits.
+
     """
     # Check if the input is a string and contains only digits
     if isinstance(value, str) and re.fullmatch(r"\d+", value):
@@ -186,6 +190,7 @@ def validate_birthday(birthday_date: date) -> None:
 
     Raises:
         ValidationError: If the birthday is in the future or unrealistically old (before 1900).
+
     """
     if birthday_date is None:
         # Skip validation if no date provided (e.g., optional field)
@@ -193,11 +198,11 @@ def validate_birthday(birthday_date: date) -> None:
 
     # Check for unrealistic birthday far in the past
     if birthday_date.year < 1900:
-        raise ValidationError("Birthday date is unrealistic — too far in the past.")
+        raise ValidationError("Birthday Date unrealistic, too far in the past")
 
     # Ensure birthday is not in the future
     if birthday_date > date.today():
-        raise ValidationError("Birthday date cannot be in the future.")
+        raise ValidationError("Birthday Date cannot be in the future.")
 
 
 def validate_age_range(birthday_date: date) -> None:
@@ -209,6 +214,7 @@ def validate_age_range(birthday_date: date) -> None:
 
     Raises:
         ValidationError: If the age is less than 12 or greater than 90.
+
     """
     if birthday_date is None:
         # Skip validation if no birthday is provided
@@ -224,9 +230,9 @@ def validate_age_range(birthday_date: date) -> None:
     )
 
     if age < 12:
-        raise ValidationError("Too young — must be at least 12 years old.")
+        raise ValidationError("Too Young, must be at least 12 years old.")
     if age > 90:
-        raise ValidationError("Too old — must be less than 90 years old.")
+        raise ValidationError("Too Old, must be less than 90 years old.")
 
 
 # * ─────────────── Birthday Date Validators ───────────────
@@ -242,6 +248,7 @@ def validate_image_size(image: UploadedFile) -> None:
 
     Raises:
         ValidationError: If the image size is missing or exceeds 2MB.
+
     """
     max_size = 2 * 1024 * 1024  # 2 MB in bytes
 
@@ -268,6 +275,7 @@ def validate_image_extension(image: UploadedFile) -> None:
 
     Raises:
         ValidationError: If the image has no name or has an invalid extension.
+
     """
     # Ensure the image has a name before checking its extension
     if not image.name:

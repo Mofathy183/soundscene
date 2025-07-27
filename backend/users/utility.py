@@ -1,7 +1,7 @@
-from typing import TYPE_CHECKING, Dict, Optional, List
+from pathlib import Path
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from graphql import GraphQLError
-from pathlib import Path
 
 if TYPE_CHECKING:
     from .models import Profile  # or wherever your Profile model is
@@ -18,6 +18,7 @@ def profile_avatar_path(instance: "Profile", filename: str) -> str:
     Returns:
         str: A formatted path for storing the avatar.
              Example: "avatars/profile_johndoe/avatar.png"
+
     """
     return str(Path("avatars") / f"profile_{instance.user.username}" / filename)
 
@@ -77,6 +78,8 @@ ALLOWED_SORT_FIELDS = {
     "created_at": "created_at",
     "updated_at": "updated_at",
 }
+
+
 def get_order_by(order_by: Optional[str]) -> List[str]:
     """
     Converts a GraphQL `order_by` input into a Django-compatible list of ordering fields.
@@ -91,6 +94,7 @@ def get_order_by(order_by: Optional[str]) -> List[str]:
 
     Raises:
         GraphQLError: If the provided field is not in the allowed list.
+
     """
     if not order_by:
         return ["-created_at", "-id"]

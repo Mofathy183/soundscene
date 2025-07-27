@@ -1,0 +1,59 @@
+# ruff.toml
+
+line-length = 88  # ✅ line-length must go here in Ruff 0.4+
+indent-width = 4
+
+# Exclude common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+# Python version
+target-version = "py39"
+
+[lint]
+# Choose only well-supported, useful rule sets
+select = ["E4", "E7", "E9", "F"]
+# Optionally ignore specific rules (customize based on your taste)
+ignore = [
+  "D107",  # Missing docstring in __init__
+  "D203",  # Conflicts with D211 (one blank line before class docstring)
+  "D212",  # Conflicts with D213 (docstring starts on new line)
+]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false
+docstring-code-line-length = "dynamic"
+

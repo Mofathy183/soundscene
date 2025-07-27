@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
-from pathlib import Path
-import environ
 import os
 from datetime import timedelta
+from pathlib import Path
+
+import environ
 
 # ───── Define base directory ─────
 # BASE_DIR points to the root of the project and is used to construct file paths (e.g., for media, static, env).

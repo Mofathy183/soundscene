@@ -1,23 +1,24 @@
 import uuid
-from typing import Optional
 from datetime import date
-from django.db import models
-from django.utils import timezone
+from typing import Dict, Optional, Tuple
+
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.exceptions import PermissionDenied
+from django.db import models
+from django.utils import timezone
+
 from .managers import UserManager
 from .utility import profile_avatar_path
-from typing import Tuple, Dict
 from .validators import (
-    validate_email,
-    validate_username,
-    validate_name,
+    validate_age_range,
     validate_bio,
     validate_bio_not_numeric_only,
     validate_birthday,
-    validate_age_range,
-    validate_image_size,
+    validate_email,
     validate_image_extension,
+    validate_image_size,
+    validate_name,
+    validate_username,
 )
 
 
@@ -237,8 +238,10 @@ class Profile(models.Model):
     def age(self) -> Optional[int]:
         """
         Calculate the age of the user based on their birthday.
+
         Returns:
             int: User's age if birthday is set, else None.
+
         """
         if not self.birthday_date:
             return None
@@ -255,8 +258,10 @@ class Profile(models.Model):
     def __str__(self) -> str:
         """
         String representation of the Profile model.
+
         Returns:
             str: User's full name with "'s profile".
+
         """
         return f"{self.user.name}'s profile"
 
