@@ -64,16 +64,19 @@ jobs:
         working-directory: backend
         run: |
           uv venv
+          source .venv/bin/activate
           uv sync --locked
 
       - name: 🗄️ Run Migrations
         working-directory: backend
         run: |
+          source .venv/bin/activate
           uv run manage.py migrate
 
       - name: Run Tests with Pytest
         working-directory: backend
         run: |
+          source .venv/bin/activate
           pytest --reuse-db --create-db --tb=short -p no:warnings
 
       - name: Type Check (mypy)
