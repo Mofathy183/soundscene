@@ -11,7 +11,6 @@ from users.utility import (
 from .factories import ProfileFactory
 
 
-@pytest.mark.skip(reason="Finsh testing")
 @pytest.mark.parametrize(
     "username, filename, expected_path",
     [
@@ -36,7 +35,6 @@ def test_profile_avatar_path(mocker, username, filename, expected_path):
     assert result == expected_path
 
 
-@pytest.mark.skip(reason="Finsh testing")
 class TestGetOrderBy:
     @pytest.mark.parametrize(
         "field, expected",

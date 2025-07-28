@@ -1,0 +1,94 @@
+name: SoundScene CI
+
+on:
+  push:
+    paths:
+      - 'soundscene/**'
+    branches:
+      - main
+  pull_request:
+    paths:
+      - 'soundscene/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Django Pytest Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: soundscene_ci_db
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DJANGO_SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+      DEBUG: True
+      ALLOWED_HOSTS: localhost
+      DJANGO_ENV: ci
+
+      POSTGRES_DB: soundscene_ci_db
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      PYTHONPATH: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: 🐍 Install uv (Python dependency manager)
+        run: |
+          curl -Ls https://astral.sh/uv/install.sh | bash
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: 📦 Sync Dependencies with uv
+        working-directory: backend
+        run: |
+          uv venv
+          uv sync --locked
+
+      - name: 🗄️ Run Migrations
+        working-directory: backend
+        run: |
+          uv run manage.py migrate
+
+      - name: Run Tests with Pytest
+        working-directory: backend
+        run: |
+          pytest --reuse-db --create-db --tb=short -p no:warnings
+
+      - name: Type Check (mypy)
+        working-directory: backend
+        run: |
+          mypy .
+
+      - name: Lint Check (ruff)
+        working-directory: backend
+        run: |
+          ruff check .
+
+      - name: 📤 Upload Test Coverage (Optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: backend/.pytest_cache/

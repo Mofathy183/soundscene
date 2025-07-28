@@ -9,7 +9,6 @@ from users.services import get_all_users, get_user_by_id
 from users.utility import USER_MESSAGES
 
 
-@pytest.mark.skip(reason="Finsh testing")
 @pytest.mark.django_db
 class TestResolveAllUsersLogic:
     def test_get_all_users_no_users_found(self):
@@ -63,7 +62,6 @@ class TestResolveAllUsersLogic:
         assert all(username in result_usernames for username in created_usernames)
 
 
-@pytest.mark.skip(reason="Finsh testing")
 @pytest.mark.django_db
 class TestResolveGetUserById:
     def test_get_user_by_id_success(self, user_factory):
