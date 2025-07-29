@@ -1,10 +1,11 @@
 import graphene
+from users.schema.queries import UserQuery
 
 
 # ─────────────────────────────────────────────
 # Root Query: Combine your own queries here.
 # ─────────────────────────────────────────────
-class Query(graphene.ObjectType):  # type: ignore[misc]
+class Query(UserQuery, graphene.ObjectType):  # type: ignore[misc]
     """
     Root query class.
 

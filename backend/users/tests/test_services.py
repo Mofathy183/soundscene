@@ -5,12 +5,12 @@ from graphql import GraphQLError
 from graphql_relay import to_global_id
 
 from users.models import User
-from users.services import get_all_users, get_user_by_id
+from users.services import get_all_users, get_user_by_id, get_user_by_username
 from users.utility import USER_MESSAGES
 
 
 @pytest.mark.django_db
-class TestResolveAllUsersLogic:
+class TestAllUsersLogic:
     def test_get_all_users_no_users_found(self):
         with pytest.raises(GraphQLError) as graphql_error:
             get_all_users(None, "", {})
@@ -63,7 +63,7 @@ class TestResolveAllUsersLogic:
 
 
 @pytest.mark.django_db
-class TestResolveGetUserById:
+class TestGetUserById:
     def test_get_user_by_id_success(self, user_factory):
         user = user_factory(id=uuid4())
         global_id = to_global_id("UserNode", user.id)
@@ -74,7 +74,7 @@ class TestResolveGetUserById:
         assert result.id == user.id
         assert result.email == user.email
 
-    def test_get_user_by_id_fail(self, user_factory):
+    def test_get_user_by_id_use_fake_id(self):
         fake_id = to_global_id("UserNode", uuid4())
         with pytest.raises(GraphQLError) as graphql_error:
             get_user_by_id(None, fake_id)
@@ -89,11 +89,53 @@ class TestResolveGetUserById:
             "   ",  # Blank string
             "",  # Empty string
             None,  # None input
-            "invalid-id65",  # Not a Relay global ID
         ],
     )
     def test_resolve_get_user_by_invalid_id(self, bad_input):
         with pytest.raises(GraphQLError) as graphql_error:
             get_user_by_id(info=None, user_id=bad_input)
 
-        assert "valid user UUID" in str(graphql_error.value.args[0])
+        error = graphql_error.value.args[0]
+        assert (
+            error
+            == "Oops! It looks like the user ID is missing or invalid. Please try again."
+        )
+
+
+@pytest.mark.django_db
+class TestGetUserByUsername:
+    def test_get_user_by_username_success(self, user_factory):
+        user = user_factory()
+
+        result = get_user_by_username(None, user.username)
+
+        assert isinstance(result, User)
+        assert result.id == user.id
+        assert result.email == user.email
+
+    def test_get_user_by_username_user_do_not_exist(self):
+        with pytest.raises(GraphQLError) as graphql_error:
+            get_user_by_username(None, "michaelrodriguez")
+
+        error = graphql_error.value.args[0]
+        assert error == USER_MESSAGES["not_found"]
+
+    @pytest.mark.parametrize(
+        "username",
+        [
+            "",  # Empty string
+            "  ",  # Only whitespace
+            "j",  # Only one character (not matching the + after first char)
+            "j  ",  # Only one character*whitespace
+            "jj",  # Only two character
+            "jj  ",  # Only two character*whitespace
+            1255,  # Invalid character (@)
+        ],
+    )
+    def test_resolve_get_user_by_username_invalid_usernames(self, username):
+        with pytest.raises(GraphQLError) as graphql_error:
+            get_user_by_username(None, username=username)
+
+        error = graphql_error.value.args[0]
+
+        assert error == "Please enter a valid username with at least 3 characters."

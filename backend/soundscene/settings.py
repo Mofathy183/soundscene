@@ -50,13 +50,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party apps
-    "corsheaders",  # Handle CORS
-    "django_filters",  # Filtering support for DRF and Graphene
+    "corsheaders",  # CORS middleware
+    "django_filters",  # Filtering for DRF & Graphene
     "graphene_django",  # GraphQL integration
-    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",  # Enables refresh token mutation
-    "rest_framework",  # Django REST Framework
+    "graphql_jwt.refresh_token.apps.RefreshTokenConfig",  # JWT Refresh Tokens
+    "rest_framework",  # Optional: if you use DRF for file uploads/admin
     # Local apps
-    "users.apps.UsersConfig",  # Custom users app (with AbstractBaseUser)
+    "users.apps.UsersConfig",  # Custom user model app
 ]
 
 # ─────────────── Middleware ───────────────

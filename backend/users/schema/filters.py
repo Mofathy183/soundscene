@@ -6,10 +6,9 @@ from users.utility import ALLOWED_SORT_FIELDS
 
 class UserFilter(django_filters.FilterSet):
     username = django_filters.CharFilter(lookup_expr="icontains")
-    name = django_filters.CharFilter(lookup_expr="icontains")
     email = django_filters.CharFilter(lookup_expr="iexact")
+    name = django_filters.CharFilter(lookup_expr="icontains")
     is_active = django_filters.BooleanFilter()
-    is_staff = django_filters.BooleanFilter()
 
     # Use DateFromToRangeFilter for ranges: ?created_at_after=&created_at_before=
     date_joined = django_filters.DateFromToRangeFilter()
@@ -31,9 +30,9 @@ class UserFilter(django_filters.FilterSet):
             "name": ["exact", "icontains"],
             "email": ["exact", "iexact"],
             "is_active": ["exact"],
-            "is_staff": ["exact"],
             "date_joined": ["exact", "lt", "gt"],
             "created_at": ["exact", "lt", "gt"],
+            "updated_at": ["exact", "lt", "gt"],
         }
 
 

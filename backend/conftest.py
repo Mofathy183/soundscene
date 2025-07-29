@@ -12,6 +12,8 @@ from typing import Any
 import pytest
 from django.conf import settings  # noqa: F401
 from users.tests.factories import ProfileFactory, UserFactory
+from gql.schema import schema
+from graphene.test import Client
 from pytest_factoryboy import (
     register,
 )
@@ -22,6 +24,19 @@ pytest_plugins = ["pytest_factoryboy"]
 # * Register the factories
 register(UserFactory)
 register(ProfileFactory)
+
+
+@pytest.fixture
+def gql_client():
+    return Client(schema)
+
+
+@pytest.fixture
+def execute_query():
+    def _execute(client, query, variables=None):
+        return client.execute(query, variables=variables)
+
+    return _execute
 
 
 @pytest.fixture(autouse=True)
