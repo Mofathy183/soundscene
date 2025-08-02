@@ -24,17 +24,17 @@ class UserSerializer(serializers.ModelSerializer):  # type: ignore
     """
 
     email = serializers.EmailField(
-        required=True, validators=[validate_email], help_text="User email address."
+        required=True, validators=validate_email, help_text="User email address."
     )
     username = serializers.CharField(
         required=True,
-        validators=[validate_username],
+        validators=validate_username,
         trim_whitespace=True,
         help_text="Unique username for the user.",
     )
     name = serializers.CharField(
         required=True,
-        validators=[validate_name],
+        validators=validate_name,
         trim_whitespace=True,
         help_text="Full name of the user.",
     )
@@ -89,6 +89,38 @@ class UserSerializer(serializers.ModelSerializer):  # type: ignore
         """
         validated_data.pop("confirm_password", None)
         return User.objects.create_user(**validated_data)
+
+
+class LoginSerializer(serializers.Serializer):  # type: ignore
+    """
+    Serializer used for authenticating a user during login.
+    Validates email and password, and authenticates the user.
+    """
+
+    email = serializers.EmailField(
+        required=True, validators=validate_email, help_text="User email address."
+    )
+    password = serializers.CharField(
+        required=True,
+        write_only=True,
+        trim_whitespace=False,
+        help_text="User password (write-only).",
+    )
+
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Ensure both email and password are present.
+        """
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        if not email or not password:
+            raise serializers.ValidationError(
+                {"non_field_errors": "Must include both email and password."},
+                code="authorization",
+            )
+
+        return attrs
 
 
 class ProfileSerializer(serializers.ModelSerializer):  # type: ignore

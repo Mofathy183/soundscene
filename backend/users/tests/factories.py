@@ -4,7 +4,7 @@ from factory.fuzzy import FuzzyDate
 from faker import Faker
 from factory.django import DjangoModelFactory, ImageField
 from django.contrib.auth.hashers import make_password
-from users.models import User, Profile
+from users.models import User, Profile, UserRole
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -23,6 +23,9 @@ class UserFactory(DjangoModelFactory):
     name = factory.LazyFunction(lambda: re.sub(r"[^a-zA-Z ]", "", fake.name())[:50])
     email = factory.LazyAttribute(lambda obj: f"{obj.username}@example.com")
     password = factory.LazyFunction(lambda: make_password("PassW0rd122?!"))
+    role = UserRole.USER
+    is_staff = False
+    is_superuser = False
 
     @classmethod
     def create_with_raw_password(cls, password: str) -> User:

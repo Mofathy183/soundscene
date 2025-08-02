@@ -75,7 +75,7 @@ class TestAllUsersQueries:
         errors = result["errors"][0]["message"]
         all_users = result["data"]["allUsers"]
 
-        assert errors == "No users available at the moment."
+        assert errors == USER_MESSAGES["list_empty"]
         assert all_users is None
 
     def test_query_all_users_relay_first_and_after(

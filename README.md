@@ -285,7 +285,5 @@ Let me know if you'd like:
 - `.dockerignore` templates
 - A badge generator for versioning or Docker
 
-Want me to export this into a `.md` file for direct use in your repo?
-
 
 

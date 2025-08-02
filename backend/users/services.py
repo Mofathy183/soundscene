@@ -1,14 +1,27 @@
 from typing import Any, Dict, List, Optional
 from uuid import UUID
 
+from django.db import IntegrityError, transaction
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import QuerySet
 from graphql import GraphQLError, GraphQLResolveInfo
 from graphql_relay import from_global_id
 
 from users.models import User
+from users.serializers import UserSerializer, LoginSerializer
 from users.schema.filters import UserFilter
-from users.utility import USER_MESSAGES, get_order_by, USER_FIELDS
+from users.utility import (
+    USER_MESSAGES,
+    get_order_by,
+    USER_FIELDS,
+    parse_integrity_error,
+    drf_flatten_errors,
+    format_serializer_validation_error,
+)
+
+
+# *============================================={Queries Services}=======================================================
 
 
 def get_all_users(
@@ -137,3 +150,113 @@ def get_user_by_username(info: GraphQLResolveInfo, username: str) -> User:
         return User.objects.select_related("profile").get(username=username.strip())
     except ObjectDoesNotExist:
         raise GraphQLError(USER_MESSAGES["not_found"])
+
+
+# *============================================={Queries Services}=======================================================
+
+
+# *============================================={Mutations Services}=====================================================
+
+
+def signup_user(
+    info: GraphQLResolveInfo,
+    email: str,
+    username: str,
+    name: str,
+    password: str,
+    confirm_password: str,
+    **kwargs: Any,
+) -> User:
+    # * validate the user data with serializers
+    data = {
+        "email": email,
+        "username": username,
+        "password": password,
+        "confirm_password": confirm_password,
+        "name": name,
+    }
+
+    serializer = UserSerializer(data=data)
+
+    if not serializer.is_valid(raise_exception=False):
+        message, extensions = format_serializer_validation_error(serializer.errors)
+        raise GraphQLError(message, extensions=extensions)
+
+    try:
+        with transaction.atomic():
+            user: User = serializer.save()
+    except IntegrityError as duplicate_error:
+        field, value = parse_integrity_error(duplicate_error)
+
+        raise GraphQLError(
+            USER_MESSAGES["duplicate"],
+            extensions={
+                "code": "CONFLICT",
+                "field": field,
+                "errors": {field: f"A user with {field} '{value}' already exists."},
+            },
+        )
+    except DRFValidationError as e:
+        raise GraphQLError(
+            "Error Invalid input during saving.",
+            extensions={
+                "code": "BAD_USER_INPUT",
+                "errors": drf_flatten_errors(e.detail),
+            },
+        )
+
+    return user
+
+
+def login_user(info: GraphQLResolveInfo, email: str, password: str) -> User:
+    """
+    Authenticates a user using email and password.
+
+    Args:
+        info (GraphQLResolveInfo): GraphQL context info.
+        email (str): User's email.
+        password (str): User's plaintext password.
+
+    Returns:
+        User: Authenticated user object.
+
+    Raises:
+        GraphQLError: If serializer validation fails, user not found, or credentials are invalid.
+    """
+
+    # Validate basic input structure using serializer
+    serializer = LoginSerializer(data={"email": email, "password": password})
+    if not serializer.is_valid(raise_exception=False):
+        message, extensions = format_serializer_validation_error(serializer.errors)
+        raise GraphQLError(message, extensions=extensions)
+
+    # Check if user exists
+    try:
+        user = User.objects.select_related("profile").get(email=email)
+    except ObjectDoesNotExist:
+        raise GraphQLError(
+            USER_MESSAGES["email_with_no_user"],
+            extensions={
+                "code": "UNAUTHENTICATED",
+                "errors": {
+                    "email": USER_MESSAGES["email_with_no_user"],
+                },
+            },
+        )
+
+    # Validate password
+    if not user.check_password(password):
+        raise GraphQLError(
+            USER_MESSAGES["invalid_password"],
+            extensions={
+                "code": "UNAUTHENTICATED",
+                "errors": {
+                    "password": USER_MESSAGES["invalid_password"],
+                },
+            },
+        )
+
+    return user
+
+
+# *============================================={Mutations Services}=====================================================
